@@ -55,12 +55,21 @@ export default function QuizListPage() {
           <span className="text-2xl">⚡</span>
           <span className="text-xl font-bold tracking-tight">QuizZap</span>
         </Link>
-        <Link
-          href="/dashboard"
-          className="text-sm text-white/70 hover:text-white transition"
-        >
-          Dashboard
-        </Link>
+
+        <div className="flex items-center gap-5 text-sm">
+          <Link
+            href="/leaderboard"
+            className="text-white/70 hover:text-white transition"
+          >
+            Leaderboard
+          </Link>
+          <Link
+            href="/dashboard"
+            className="text-white/70 hover:text-white transition"
+          >
+            Dashboard
+          </Link>
+        </div>
       </nav>
 
       <section className="max-w-6xl mx-auto px-4 py-8">
