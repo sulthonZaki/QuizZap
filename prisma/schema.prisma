@@ -1,0 +1,128 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+   url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int       @id @default(autoincrement())
+  username      String    @unique
+  email         String    @unique
+  password      String?
+  avatar        String?
+  points        Int       @default(0)
+  xp            Int       @default(0)
+  level         Int       @default(1)
+  streak        Int       @default(0)
+  lastPlayedAt  DateTime?
+  role          String    @default("user")
+  createdAt     DateTime  @default(now())
+
+  quizzes       Quiz[]
+  scores        Score[]
+  comments      Comment[]
+  badges        UserBadge[]
+}
+
+model Quiz {
+  id          Int       @id @default(autoincrement())
+  title       String
+  slug        String    @unique
+  description String?   @db.Text
+  category    String
+  difficulty  String    @default("medium")
+  timeLimit   Int       @default(300)
+  playCount   Int       @default(0)
+  rating      Float     @default(0)
+  published   Boolean   @default(false)
+  createdBy   Int
+  createdAt   DateTime  @default(now())
+
+  author      User        @relation(fields: [createdBy], references: [id])
+  questions   Question[]
+  scores      Score[]
+  comments    Comment[]
+}
+
+model Question {
+  id              Int       @id @default(autoincrement())
+  quizId          Int
+  type            String
+  content         String    @db.Text
+  answer          String    @db.Text
+  acceptedAnswers Json?
+  points          Int       @default(10)
+  timeBonus       Int       @default(0)
+  orderIndex      Int
+  hint            String?
+
+  quiz            Quiz              @relation(fields: [quizId], references: [id])
+  options         QuestionOption[]
+  media           QuestionMedia[]
+}
+
+model QuestionOption {
+  id          Int       @id @default(autoincrement())
+  questionId  Int
+  label       String
+  value       String
+  isCorrect   Boolean   @default(false)
+
+  question    Question  @relation(fields: [questionId], references: [id])
+}
+
+model QuestionMedia {
+  id          Int       @id @default(autoincrement())
+  questionId  Int
+  mediaType   String
+  url         String
+  altText     String?
+
+  question    Question  @relation(fields: [questionId], references: [id])
+}
+
+model Score {
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  quizId      Int
+  score       Int
+  timeTaken   Int
+  createdAt   DateTime  @default(now())
+
+  user        User      @relation(fields: [userId], references: [id])
+  quiz        Quiz      @relation(fields: [quizId], references: [id])
+}
+
+model Comment {
+  id        Int       @id @default(autoincrement())
+  userId    Int
+  quizId    Int
+  content   String    @db.Text
+  createdAt DateTime  @default(now())
+
+  user      User      @relation(fields: [userId], references: [id])
+  quiz      Quiz      @relation(fields: [quizId], references: [id])
+}
+
+model Badge {
+  id          Int         @id @default(autoincrement())
+  name        String      @unique
+  description String
+  icon        String
+  condition   String
+
+  users       UserBadge[]
+}
+
+model UserBadge {
+  id        Int       @id @default(autoincrement())
+  userId    Int
+  badgeId   Int
+  earnedAt  DateTime  @default(now())
+
+  user      User      @relation(fields: [userId], references: [id])
+  badge     Badge     @relation(fields: [badgeId], references: [id])
+}
